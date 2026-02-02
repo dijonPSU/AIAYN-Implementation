@@ -2,7 +2,6 @@
 #define TENSOR_HPP
 
 #include <vector>
-#include <iostream>
 #include <stdexcept>
 
 
@@ -12,15 +11,15 @@ private:
     std::vector<size_t> shape_;
     size_t size_;
 
-    size_t computeIndex(const std::vector<size_t>& indicies);
+    size_t computeIndex(const std::vector<size_t>& indices) const;
 public:
     Tensor() : size_(0) {};
-    Tensor(const std::vector<size_t>& shape);
+    explicit Tensor(const std::vector<size_t>& shape);
 
-    float& Tensor::operator()(const std::vector<size_t>& indicies);
-    float Tensor::operator()(const std::vector<size_t>& indices) const;
+    float& operator()(const std::vector<size_t>& indices);
+    float operator()(const std::vector<size_t>& indices) const;
 
-    std::vector<size_t> shape() const { return shape_; };
+    const std::vector<size_t>& shape() const { return shape_; };
     size_t size() const { return size_; };
 
     Tensor operator+(const Tensor& other) const;
