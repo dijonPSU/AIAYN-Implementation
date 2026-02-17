@@ -44,7 +44,7 @@ float& Tensor::operator()(const std::vector<size_t>& indices) {
 }
 
 // returns element value at given indices
-float Tensor::operator()(const std::vector<size_t>& indices) const {
+const float& Tensor::operator()(const std::vector<size_t>& indices) const {
     size_t idx = computeIndex(indices);
     return data_[idx];
 }
@@ -102,4 +102,35 @@ void Tensor::print() const {
         if (i + 1 < size_) std::cout << ", ";
     }
     std::cout << "]\n";
+}
+
+// returns mutable size of tensor
+float& Tensor::operator()(size_t i, size_t j) {
+    int required_size = 2;
+
+    if (shape_.size() != required_size) {
+        throw std::invalid_argument("Operator()(i, j) requires 2D tensor");
+    }
+
+    if (i >= shape_[0] || j>= shape_[1]) {
+        throw std::out_of_range("Index out of range");
+    }
+
+    return data_[i * shape_[1] + j];
+}
+
+// returns inmutable size of tensor
+const float Tensor::operator()(size_t i, size_t j) const {
+    int required_size = 2;
+
+    if (shape_.size() != required_size) {
+        throw std::invalid_argument("Operator()(i, j) requires 2D tensor");
+    }
+
+
+    if (i >= shape_[0] || j>= shape_[1]) {
+        throw std::out_of_range("Index out of range");
+    }
+
+    return data_[i * shape_[1] + j];
 }
