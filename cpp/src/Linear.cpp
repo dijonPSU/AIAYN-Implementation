@@ -136,7 +136,7 @@ Tensor Linear::forward(const Tensor& input) {
     Tensor output(outShape);
 
     // copy data to output storage
-    const float* floatOutputPtr = flatOutput.data();
+    const float* flatOutputPtr = flatOutput.data();
     float* outputPtr = output.data();
 
     const size_t outputRowSize = outFeatures_;
@@ -144,7 +144,7 @@ Tensor Linear::forward(const Tensor& input) {
         const size_t srcOffset = row * outputRowSize;
         const size_t dstOffset = row * outputRowSize;
         for (size_t o = 0; o < outputRowSize; ++o) {
-            outputPtr[dstOffset + o] =  flatInputPtr[srcOffset + o];
+            outputPtr[dstOffset + o] =  flatOutputPtr[srcOffset + o];
         }
     }
 
