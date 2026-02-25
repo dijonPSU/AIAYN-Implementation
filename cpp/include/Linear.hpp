@@ -26,7 +26,7 @@ public:
 
     // params
     const Tensor& weight() const { return weight_; }
-    const std::optional<Tensor>& bias() { return bias_; }
+    const std::optional<Tensor>& bias() const { return bias_; }
 
     //  gradient funcs
     const Tensor& gradWeight() const { return gradWeight_; }

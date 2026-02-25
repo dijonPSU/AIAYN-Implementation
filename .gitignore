@@ -4,3 +4,16 @@ build/
 *.so
 *.o
 *.out
+.trunk/trunk.yaml
+.trunk/configs/.markdownlint.yaml
+*out
+*logs
+*actions
+*notifications
+*tools
+plugins
+user_trunk.yaml
+user.yaml
+tmp
+
+.trunk/.gitignore
