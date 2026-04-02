@@ -154,3 +154,64 @@ Tensor Linear::forward(const Tensor& input) {
 
     return output;
 }
+
+Tensor Linear::backward(const Tensor& gradOutput) {
+    requireAtLeast1D(gradOutput, "Backward: gradOutput");
+
+    if (!cachedInput_.has_value()) {
+        throw std::runtime_error("Backward: Must call forward() before backward()");
+    }
+
+    const Tensor& input = *cachedInput_;
+    const auto& inShape = input.shape();
+    const auto& goShape = gradOutput.shape();
+
+    const size_t batch = inShape[0];
+    const size_t inDim = inShape[1];
+
+
+    if (goShape[0] != batch || goShape[1] != outFeatures_) {
+        throw std::invalid_argument("Backward: gradOutput shape mismatch");
+    }
+
+    if (inDim != inFeatures_) {
+        throw std::invalid_argument("Backward: cached input feature dimension mismatch");
+    }
+
+
+    Tensor gradInput({batch, inFeatures_});
+
+
+    // TODO: Write comments
+    for (size_t i = 0; i < inFeatures_; ++i) {
+        for (size_t o = 0; o < outFeatures_; ++o) {
+            float sum = 0.0f;
+            for (size_t b = 0; b < batch; ++b) {
+                sum += input(b, i) * gradOutput(b, o);
+            }
+            gradWeight_(i, o) += sum;
+        }
+    }
+
+    if (useBias_) {
+        for (size_t o = 0; o < outFeatures_; ++o) {
+            float sum = 0.0f;
+            for (size_t b = 0; b < batch; ++b) {
+                sum += gradOutput(b, o);
+            }
+            (*gradBias_)({o}) += sum;
+        }
+    }
+
+        for (size_t b = 0; b < batch; ++b) {
+            for (size_t i = 0; i < inFeatures_; ++i) {
+                float sum = 0.0f;
+                for (size_t o = 0; o < outFeatures_; ++o) {
+                    sum += gradOutput(b, o) * weight_(i, o);
+                }
+                gradInput(b, i) = sum;
+            }
+        }
+
+        return gradInput;
+}
