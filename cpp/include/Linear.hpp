@@ -1,65 +1,59 @@
 #ifndef LINEAR_HPP
 #define LINEAR_HPP
 
-
+#include <memory>
 #include <optional>
 #include <random>
-#include <string>
-
+#include <string_view>
 
 #include "Tensor.hpp"
 
-
 class Linear {
 public:
-    Linear(size_t inFeatures, size_t outFeatures, bool useBias = true, uint32_t seed = 1337);
+  Linear(size_t inFeatures, size_t outFeatures, bool useBias = true,
+         uint32_t seed = 1337);
 
-    // forward / backward
-    Tensor forward(const Tensor& input);
-    Tensor backward(const Tensor& gradOutput);
+  // forward / backward
+  Tensor forward(const Tensor &input);
+  Tensor backward(const Tensor &gradOutput);
+  void zeroGrad() noexcept;
 
-    void zeroGrad();
+  constexpr size_t inFeatures() const { return inFeatures_; }
+  constexpr size_t outFeatures() const { return outFeatures_; }
+  constexpr bool usesBias() const { return useBias_; }
 
-    size_t inFeatures() const { return inFeatures_ ; }
-    size_t outFeatures() const { return outFeatures_ ; }
-    bool usesBias() const { return useBias_; }
+  // params
+  const Tensor &weight() const noexcept { return weight_; }
+  const std::optional<Tensor> &bias() const noexcept { return bias_; }
 
-    // params
-    const Tensor& weight() const { return weight_; }
-    const std::optional<Tensor>& bias() const { return bias_; }
+  //  gradient funcs
+  const Tensor &gradWeight() const noexcept { return gradWeight_; }
+  const std::optional<Tensor> &gradBias() const noexcept { return gradBias_; }
 
-    //  gradient funcs
-    const Tensor& gradWeight() const { return gradWeight_; }
-    const std::optional<Tensor>& gradBias() const { return gradBias_; }
+  // mutable access for optimizer
+  Tensor &weightMutable() noexcept { return weight_; }
+  std::optional<Tensor> &biasMutable() noexcept { return bias_; }
 
-    // mutable access for optimizer
-    Tensor& weightMutable() { return weight_; }
-    std::optional<Tensor>& biasMutable() { return bias_; }
+  Tensor &gradWeightMutable() noexcept { return gradWeight_; }
+  std::optional<Tensor> &gradBiasMutable() noexcept { return gradBias_; }
 
-    Tensor& gradWeightMutable() { return gradWeight_; }
-    std::optional<Tensor>& gradBiasMutable() { return gradBias_; }
+private:
+  size_t inFeatures_;
+  size_t outFeatures_;
+  bool useBias_;
 
-private: 
-    size_t inFeatures_;
-    size_t outFeatures_;
-    bool useBias_;
+  Tensor weight_;
+  std::optional<Tensor> bias_;
 
-    Tensor weight_;                    
-    std::optional<Tensor> bias_;
+  Tensor gradWeight_;
+  std::optional<Tensor> gradBias_;
 
-    Tensor gradWeight_;
-    std::optional<Tensor> gradBias_;
+  // cache for backward
+  std::unique_ptr<Tensor> cachedInput_;
 
-    // cache for backward
-    std::optional<Tensor> cachedInput_;
-    std::vector<size_t> cachedInputShape_;
-
-    std::mt19937 rng_;
-
-    void initXavierUniform();
-    static void requireAtLeast1D(const Tensor& t, const std::string& name);
-    static size_t productOfLeadingDims(const std::vector<size_t>& shape);
+  void initXavierUniform(std::mt19937 &rng_);
+  static void requireAtLeast1D(const Tensor &t, std::string_view name);
+  static size_t productOfLeadingDims(const std::vector<size_t> &shape);
 };
-
 
 #endif
