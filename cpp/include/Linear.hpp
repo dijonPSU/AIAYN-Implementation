@@ -26,7 +26,7 @@ public:
   const Tensor &weight() const noexcept { return weight_; }
   const std::optional<Tensor> &bias() const noexcept { return bias_; }
 
-  //  gradient funcs
+  //  gradient accessors
   const Tensor &gradWeight() const noexcept { return gradWeight_; }
   const std::optional<Tensor> &gradBias() const noexcept { return gradBias_; }
 
@@ -51,7 +51,7 @@ private:
   // cache for backward
   std::unique_ptr<Tensor> cachedInput_;
 
-  void initXavierUniform(std::mt19937 &rng_);
+  void initXavierUniform(std::mt19937 &rng);
   static void requireAtLeast1D(const Tensor &t, std::string_view name);
   static size_t productOfLeadingDims(const std::vector<size_t> &shape);
 };
